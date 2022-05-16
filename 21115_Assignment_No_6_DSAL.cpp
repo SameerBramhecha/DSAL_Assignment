@@ -19,6 +19,56 @@ public:
 	}
 	friend class Graph;
 };
+class Stack
+{
+	char top;
+	int s[20];
+	public:
+		Stack()
+		{
+			top = -1;
+		}
+		void push(int p)
+		{
+			if (top == 19)
+			{
+				cout << "Stack is Full!!" << endl;
+			}
+			else
+			{
+				s[++top] = p;
+
+			}
+		}
+
+		int pop()
+		{
+			int x;
+			if (top == -1)
+			{
+				cout << "Stack is Empty" << endl;
+			}
+			else
+			{
+				x = s[top];
+				top--;
+				return x;
+			}
+		}
+		bool isempty()
+		{
+			if (top == -1)
+			{
+				return 1;
+			}
+			else
+			{
+				return 0;
+			}
+		}
+
+};
+
 class Queue
 {
 	int front, rear;
@@ -97,35 +147,31 @@ class Graph
 	int v, e;
 	string name[10];
 	bool* visited;
-	bool* visited1;
 public:
 	Graph(int v, int e)
 	{
 		this->v = v;
 		this->e = e;
 		visited = new bool[v];
-		visited1 = new bool[v];
 		for (int i = 0; i < v; i++)
 		{
 			adjlist[i] = NULL;
 			visited[i] = false;
-			visited1[i] = false;
 
 		}
 	}
 	void read();
 	void display();
 	void DFS(int);
+	void DFSr(int,Stack);
 	void BFS(int);
 };
 void Graph::read()
 {
 	int s, d,n;
 	string n1, n2;
-	cout << "Enter No of Landmarks: " << endl;
-	cin >> n;
 	cout << "Enter Name of Landmarks: ";
-	for (int i = 0; i < n; i++)
+	for (int i = 0; i < v; i++)
 	{
 		cin >> name[i];
 	}
@@ -133,7 +179,7 @@ void Graph::read()
 	{
 		cout << "Enter source and destination : " << endl;
 		cin >> n1 >> n2;
-		for (int i = 0; i < n; i++)
+		for (int i = 0; i < v; i++)
 		{
 			if (n1 == name[i])
 			{
@@ -141,7 +187,7 @@ void Graph::read()
 				break;
 			}
 		}
-		for (int i = 0; i < n; i++)
+		for (int i = 0; i < v; i++)
 		{
 			if (n2 == name[i])
 			{
@@ -186,36 +232,75 @@ void Graph::display()
 void Graph::DFS(int s)
 {
 	string n;
-	visited[s] = true;
+
 	node* temp = adjlist[s];
-	cout << name[s]<<"-> ";
-	while (temp != NULL)
+	cout << name[s] << " -> ";
+	visited[s] = true;
+	for(temp;temp!=NULL;temp=temp->next)
+	//while (temp != NULL)
 	{
 		s = temp->x;
 		if (!visited[s])
 		{
 			DFS(s);
 		}
-		temp = temp->next;
+		//temp = temp->next;
+	}
+}
+void Graph::DFSr(int s, Stack st)
+{
+	for (int i = 0; i < v; i++)
+	{
+		visited[i] = false;
+	}
+	node* temp;
+	cout << name[s] << " -> ";
+	st.push(s);
+	visited[s] = true;
+	while (!st.isempty())
+	{
+		int a = st.pop();
+		if (visited[a] == false)
+		{
+			cout << name[a] << " -> ";
+			visited[a] = true;
+
+		}
+		temp = adjlist[a];
+		while (temp != NULL)
+		{
+			if (visited[temp->x] == false)
+			{
+				//cout << name[temp->x] << " -> ";
+				st.push(temp->x);
+				//visited[temp->x] = true;
+
+			}
+			temp = temp->next;
+		}
 	}
 }
 void Graph::BFS(int s)
 {
+	for (int i = 0; i < v; i++)
+	{
+		visited[i] = false;
+	}
 	Queue q;
-	visited1[s] = true;
+	visited[s] = true;
 	q.enqueue(s);
 	node* head;
 	while (!q.isempty())
 	{
 		s = q.dequeue();
-		cout << name[s] << "-> ";
+		cout << name[s] << " -> ";
 		head = adjlist[s];
 		for (head; head != NULL; head = head->next)
 		{
-			if (!visited1[head->x])
+			if (!visited[head->x])
 			{
 				q.enqueue(head->x);
-				visited1[head->x] = true;
+				visited[head->x] = true;
 			}
 		}
 	}
@@ -229,18 +314,20 @@ int main()
 	cin >> ne;
 	cout << endl;
 	Graph g(nv, ne);
-	int n;
-	char choice;
-	do
+	Stack st;
+	int ch;
+	while(true)
 	{
 		cout << "\n----------Menu----------" << endl;
 		cout << "1.Read the Graph" << endl;
 		cout << "2.Display the graph" << endl;
-		cout << "3.DFS Traversal" << endl;
-		cout << "4.BFS Traversal" << endl;
+		cout << "3.DFS Traversal with recursion" << endl;
+		cout << "4.DFS Traversal without Recursion" << endl;
+		cout << "5.BFS Traversal" << endl;
+		cout << "6.Exit " << endl;
 		cout << "Enter your choice: ";
-		cin >> n;
-		switch (n)
+		cin >> ch;
+		switch (ch)
 		{
 		case 1:
 			g.read();
@@ -251,18 +338,24 @@ int main()
 		case 3:
 			cout << "DFS traversal" << endl;
 			g.DFS(0);
+			cout << endl;
 			break;
 		case 4:
+			cout << "DFS traversal without recursion: " << endl;
+			g.DFSr(0,st);
+			break;
+		case 5:
 			cout << "\nBFS traversal" << endl;
 			g.BFS(0);
 			break;
+		case 6:
+			cout << "Code Exited" << endl;
+			exit('0');
 		default:
 			cout << "\nEnter correct choice!!" << endl;
 			break;
 		}
-		cout << "\nDo you want to continue?(y/n): ";
-		cin >> choice;
-	} while (choice == 'y');
+	}
 	return 0;
 }
 
