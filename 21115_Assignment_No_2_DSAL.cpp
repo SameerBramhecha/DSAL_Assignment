@@ -6,332 +6,301 @@ Provide facility for
 3. updating values of any entry.
 4. Provide facility to display whole data sorted in ascending/ Descending order.
 5. Also find how many maximum comparisons may require for finding any keyword.
-Use Binary Search Tree for implementation.*/
+Use Binary Search Tree for implementation.
+*/
 
 #include<iostream>
-#include<cstring>
 using namespace std;
-
 class node
 {
-public:
 	string word,meaning;
-	node* left;
-	node* right;
-	node(string word,string meaning)
+	node* left,*right;
+public:
+	node(string word, string meaning)
 	{
 		this->word = word;
 		this->meaning = meaning;
 		left=right=NULL;
 	}
+	friend class BST;
 };
-class Dictionary
+class BST
 {
+
 public:
-	node* root,*q;
-	Dictionary()
+	node* root, *par;
+	BST()
 	{
-		root=NULL;
-		q=NULL;
+		root = NULL;
+		par = NULL;
 	}
-	void accept();
-	bool insert(string,string);
-	void inorder(node*);
-	node* search(node*,string);
-	void update();
-	void revinorder(node*);
-	node* successor(node*);
-	void delnode(node*,string);
-	void comparisons(node* p,string);
+	void accept();//
+	void insert(string,string);//
+	void inorder(node*);//
+	void revinorder(node*);//
+	node* search(node*,string);//
+	void update();//
+	node* delt(node*,string);//
+	void deltnode();
+	void comparisons(node* );//
+	node* successor(node*);//
+	node* getroot();
 };
-void Dictionary::accept()
+node* BST::getroot()
 {
-	int n;
-	string word1,meaning1;
-	cout<<"\nHow many words to insert?"<<endl;
-	cin>>n;
-	for(int i=0;i<n;i++)
-	{
-		cout<<"\nEnter Word: "<<endl;
-		cin>>word1;
-		cout<<"Enter it's meaning: "<<endl;
-		cin.ignore();
-		cin>>meaning1;
-		insert(word1,meaning1);
-	}
+	return root;
 }
-bool Dictionary::insert(string word,string meaning)
+void BST::accept()
 {
-	node* p = new node(word,meaning);
-	if(root==NULL)
+	string name,meaning;
+	char ch = 'y';
+	do
+	{
+		cout<<"Enter Name to insert: "<<endl;
+		cin>>name;
+		cout<<"Enter it's Meaning: "<<endl;
+		cin.ignore();
+		cin>>meaning;
+		insert(name,meaning);
+		cout<<"Do You Want to continue?[y/n]"<<endl;
+		cin>>ch;
+	}while(ch=='y'||ch=='Y');
+}
+void BST::insert(string name,string meaning)
+{
+	node* p = new node(name,meaning);
+	if(root == NULL)
 	{
 		root = p;
-		return true;
+		return;
 	}
-	node *curr=root;
-	node *parent=root;
+	node* curr = root;
+	node* par = root;
 	while(curr!=NULL)
 	{
-		if(word>curr->word)
+		if(name>curr->word)
 		{
-			parent = curr;
-			curr = curr->right;
+			par = curr;
+			curr= curr->right;
 		}
-		else if(word<curr->word)
+		else if(name<curr->word)
 		{
-			parent = curr;
+			par = curr;
 			curr = curr->left;
 		}
 		else
 		{
-			cout<<"\n Word is Already in Dictionary"<<endl;
-			return false;
+			cout<<"Word Already Present in Dictionary!!!"<<endl;
+			return;
 		}
+	}
 
-	}
-	if(word>parent->word)
+	if(name>par->word)
 	{
-		parent->right = p;
-		return true;
+		par->right = p;
+		return;
 	}
-	else
+	else if(name<par->word)
 	{
-		parent->left = p;
-		return true;
+		par->left = p;
+		return;
 	}
 
 }
-void Dictionary::inorder(node *p)
+
+void BST::inorder(node* p)
 {
 	if(p)
 	{
 		inorder(p->left);
-		cout<<" "<<p->word<<":"<<p->meaning<<endl;
+		cout<<p->word<<" : "<<p->meaning<<endl;
 		inorder(p->right);
 	}
 }
-void Dictionary::revinorder(node *p)
+
+void BST::revinorder(node* p)
 {
 	if(p)
 	{
 		revinorder(p->right);
-		cout<<" "<<p->word<<":"<<p->meaning<<endl;
+		cout<<p->word<<" : "<<p->meaning<<endl;
 		revinorder(p->left);
 	}
 }
-node* Dictionary::search(node* p,string n)
+node* BST::search(node* p,string name)
 {
-
 	if(p==NULL)
 	{
 		return NULL;
 	}
-	else if(p->word==n)
+	else if(name==p->word)
 	{
 		return p;
 	}
-	if(p->word<n)
+	if(p->word<name)
 	{
-		return search(p->right,n);
+		return search(p->right,name);
 	}
-	else if(p->word>n)
+	else if(name<p->word)
 	{
-		return search(p->left,n);
+		return search(p->left,name);
 	}
 }
-void Dictionary::update()
+void BST::update()
 {
-	string n,mean;
-	cout<<"Enter Word to update its meaning: "<<endl;
+	string n,m;
+	cout<<"Enter Word to update Meaning: "<<endl;
 	cin>>n;
 	node *x = search(root,n);
 	if(x)
 	{
-		cout<<"Enter New Meaning:"<<endl;
-		cin>>mean;
-		x->meaning = mean;
+		cout<<"Enter New Meaning: "<<endl;
+		cin>>m;
+		x->meaning = m;
 	}
 	else
 	{
-		cout<<"Word Is Not Present"<<endl;
+		cout<<"Word Not Found!!"<<endl;
 	}
+}
 
-}
-node* Dictionary::successor(node* p)
+void BST::comparisons(node* p)
 {
-	p=p->right;
-	while(p->left)
-	{
-		p=p->left;
-	}
-	return p;
-}
-void Dictionary::delnode(node* p,string n)
-{
-		while(p!=NULL)							//searching for word
-		{
-			if(n < p->word)
-			{
-				q = p;
-				p = p->left;
-			}
-			else if(n > p->word)
-			{
-				q=p;
-				p = p->right;
-			}
-			else if(n == p->word)				//word found
-			{
-				if(p->left==NULL && p->right==NULL)	//no child
-				{
-					if(q->left==p)
-					{
-						delete p;
-						q->left=NULL;
-						return;
-					}
-					if(q->right==p)
-					{
-						delete p;
-						q->right=NULL;
-						return;
-					}
-				}
-				if(p->right!=NULL && p->left==NULL)	//right child only
-				{
-					if(q->right == p)
-					{
-						q->right = p->right;
-						delete p;
-						return;
-					}
-					else if(q->left == p)
-					{
-						q->left = p->right;
-						delete p;
-						return;
-					}
-				}
-				else if(p->left!=NULL && p->right==NULL)	//left child only
-				{
-					if(q->right == p)
-					{
-						q->right = p->left;
-						delete p;
-						return;
-					}
-					else if(q->left == p)
-					{
-						q->left=p->left;
-						delete p;
-						return;
-					}
-				}
-				else if(p->left!=NULL && p->right!=NULL)
-				{
-					node *s = successor(p->right);
-					p->word = s->word;
-					p->meaning = s->meaning;
-					delnode(s, s->word);
-					return;
-				}
-			}
-		}
-		cout<<"\nWord NOT found!";
-}
-void Dictionary::comparisons(node* p,string n)
-{
-	node* x;
-	x = search(p,n);
+	string n;
+	cout<<"Enter Word to find no.of comparisons: "<<endl;
+	cin>>n;
+	node* x = search(p,n);
 	if(x)
 	{
 		static int count=0;
 		while(p)
 		{
-			if(p->word>n)
-			{
-				count++;
-				p = p->left;
-			}
-			else if(p->word<n)
+			if(p->word<n)
 			{
 				count++;
 				p=p->right;
 			}
-			else if(p->word==n)
+			else if(p->word>n)
 			{
 				count++;
-				cout<<"No. of Comparisons to find "<<n<<" are: "<<count<<endl;
-				count =0;
+				p=p->left;
+			}
+			if(p->word==n)
+			{
+				count++;
+				cout<<"No. of Comparisons required to find "<<n<<" are: "<<count<<endl;
+				count=0;
 				return;
 			}
 		}
 	}
 	else
 	{
-		cout<<"Word Not Found"<<endl;
+		cout<<"Word Not Found!!"<<endl;
 	}
+}
+node* BST::successor(node* p)
+{
+	//p=p->right;
+	while(p->left)
+	{
+		par = p;
+		p=p->left;
+	}
+	return p;
+}
+void BST::deltnode()
+{
+	string n;
+	cout<<"Enter Word to Delete: "<<endl;
+	cin>>n;
+	node* temp = delt(getroot(),n);
+	if(temp==getroot())
+	{
+		cout<<n<<" deleted"<<endl;
+	}
+	else
+	{
+		cout<<n<<" not present"<<endl;
+	}
+
+}
+node* BST::delt(node* curr, string n)
+{
+	if(curr==NULL)
+		return curr;
+	if(n<curr->word)
+	{
+		curr->left = delt(curr->left,n);
+	}
+	else if(n>curr->word)
+	{
+		curr->right = delt(curr->right,n);
+	}
+	else if(n==curr->word)
+	{
+		node* temp = curr;
+		if(curr->left==NULL )
+		{
+			curr = curr->right;
+			delete temp;
+			return curr;
+		}
+		else if(curr->right==NULL)
+		{
+			curr = curr->left;
+			delete temp;
+			return curr;
+		}
+		//if node has 2 children
+		temp= successor(curr->right);
+		curr->word = temp->word;
+		curr->meaning = temp->meaning;
+		curr->right = delt(curr->right,temp->word);
+	}
+	return curr;
 }
 int main()
 {
+	BST b;
 	int ch;
-	string n,a,c;
-	node* b;
-	Dictionary d;
-	d.accept();
 	while(true)
 	{
-		cout<<"\nBinary Search Tree"<<endl;
-		cout<<"1. Insert a Word"<<endl;
-		cout<<"2. Display in Ascending Order."<<endl;
+		cout<<"----------DICTIONARY----------"<<endl;
+		cout<<"1. Insert Words"<<endl;
+		cout<<"2. Display in Ascending Order"<<endl;
 		cout<<"3. Display in Descending Order"<<endl;
-		cout<<"4. Update an Word's Meaning"<<endl;
-		cout<<"5. Delete an Word"<<endl;
-		cout<<"6. Find Comparisons"<<endl;
-		cout<<"7. Search Word"<<endl;
-		cout<<"8.Exit"<<endl;
-		cout<<"Enter Choice:"<<endl;
+		cout<<"4. Update Meaning of a Word"<<endl;
+		cout<<"5. Find Comparisons"<<endl;
+		cout<<"6. Delete A Word"<<endl;
+		cout<<"7. Exit"<<endl;
+		cout<<"Enter Choice: "<<endl;
 		cin>>ch;
 		switch(ch)
 		{
 		case 1:
-			d.accept();
+			b.accept();
 			break;
 		case 2:
-			d.inorder(d.root);
+			b.inorder(b.root);
 			break;
 		case 3:
-			d.revinorder(d.root);
+			b.revinorder(b.root);
 			break;
 		case 4:
-			d.update();
+			b.update();
 			break;
 		case 5:
-			cout<<"Enter Word to delete:"<<endl;
-			cin>>a;
-			d.delnode(d.root,a);
+			b.comparisons(b.root);
 			break;
 		case 6:
-			cout<<"Enter The Word To find Comparisons:"<<endl;
-			cin>>n;
-			d.comparisons(d.root,n);
+			b.deltnode();
 			break;
 		case 7:
-			cout<<"Enter Word to search it's Meaning"<<endl;
-			cin>>c;
-			b = d.search(d.root,c);
-			cout<<"Word is: "<<b->word<<endl;
-			cout<<"Meaning is: "<<b->meaning<<endl;
-			break;
-		case 8:
 			cout<<"Code Exited"<<endl;
 			exit('0');
-		default:
-			cout<<"Wrong Choice!!"<<endl;
-			break;
-
-
 		}
 	}
-	return 0;
+
+
 }
