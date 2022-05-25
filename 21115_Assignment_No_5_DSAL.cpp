@@ -1,5 +1,4 @@
-/*
-Implement all the functions of a dictionary (ADT) using hashing and
+/*Implement all the functions of a dictionary (ADT) using hashing and
 handle collisions using separate chaining using linked list.
 Data: Set of (key, value) pairs, Keys are mapped to values,
 Keys must be comparable, Keys must be unique.
@@ -12,185 +11,200 @@ a-097	A-065
 z-122	Z-090
 */
 #include<iostream>
-#include<cstring>
 using namespace std;
 class node
 {
 	node* next;
 	string word,meaning;
 public:
-	node(string w,string m)
+	node(string word,string meaning)
 	{
-		next = NULL;
-		word = w;
-		meaning = m;
+		next=NULL;
+		this->word = word;
+		this->meaning =meaning;
 	}
-	friend class Dictionary;
+	friend class SC;
 };
-class Dictionary
+class SC
 {
-	node* dict[20];
+	node* list[10];
 	string w,m;
 public:
-	node* head[20];
-	Dictionary()
+	SC()
 	{
-
-		for(int i=0;i<20;i++)
+		for(int i=0;i<10;i++)
 		{
-			head[i] = NULL;
-			dict[i] = NULL;
+			list[i]=NULL;
 		}
 	}
-	int hash(string);
 	void insert();
-	void find();
-	void delt();
+	int hash(char);
+	void display();
+	void search(string s);
+	void deleteword();
 };
 
-int Dictionary::hash(string a)
+int SC::hash(char a)
 {
-	int key = 0;
-	for(int i=0;i<a.length();i++)
-	{
-		key = key + int(a[i]);
-	}
-	return (key%20);
+	int key;
+	key = (int(a))%10;
+	return key;
 }
-void Dictionary::insert()
+void SC::insert()
 {
-	node* x;
-	int y;
-	cout<<"Enter Word to be inserted: "<<endl;
-	cin>>w;
-	cout<<"Enter Meaning of "<<w<<" : "<<endl;
-	cin>>m;
-	y=hash(w);
-	if(head[y]==NULL)
+	char ch = 'y';
+	do
 	{
-		head[y] = new node(w,m);
-		dict[y] = head[y];
-		head[y]->next=NULL;
-	}
-	else if(head[y]->next==NULL)
+		cout<<"Enter Word: "<<endl;
+		cin>>w;
+		cout<<"Enter Meaning: "<<endl;
+		cin>>m;
+		node* x = new node(w,m);
+			int key = hash(w[0]);
+			if(list[key] == NULL)
+			{
+				list[key] = x;
+				list[key]->next = NULL;
+			}
+			else
+			{
+				node* head;
+				head = list[key];
+				while(head->next!=NULL)
+				{
+					head = head->next;
+				}
+				head->next = x;
+			}
+		cout<<"Do you want to continue?[y/n]"<<endl;
+		cin>>ch;
+	}while(ch=='y');
+
+}
+void SC::display()
+{
+	node* head;
+	for(int i=0;i<10;i++)
 	{
-		x = new node(w,m);
-		head[y]->next = x;
-		x->next=NULL;
-	}
-	else if(head[y]->next!=NULL)
-	{
-		while(head[y]->next!=NULL)
+		head = list[i];
+		while(head!=NULL)
 		{
-			head[y] = head[y]->next;
+			cout<<head->word<<" : "<<head->meaning<<" -> ";
+			head=head->next;
 		}
-		x = new node(w,m);
-		head[y]->next = x;
-		x->next=NULL;
+		cout<<endl;
 	}
 }
-void Dictionary::find()
+void SC::search(string s)
 {
-	cout<<"Enter word to find meaning: "<<endl;
-	cin>>w;
-	int flag;
-	int s = hash(w);
-	node* b;
-	b = dict[s];
-	while(b!=NULL)
+
+	bool flag = 0;
+	int key = hash(s[0]);
+	node* temp;
+	temp = list[key];
+	while(temp!=NULL)
 	{
-		if(b->word==w)
+		if(temp->word == s)
 		{
+			cout<<"Word Found"<<endl;
 			flag = 1;
 			break;
 		}
-		else
-		{
-			flag = 0;
-		}
-		b = b->next;
+		temp = temp->next;
 	}
-	if(flag==1)
+	if(flag == 1)
 	{
-		cout<<"Word "<<w<<" found"<<endl;
-		cout<<"Word: "<<b->word<<endl;
-		cout<<"Meaning: "<<b->meaning<<endl;
-		cout<<"Hash value of "<<b->word<<" = "<<s<<endl;
+		cout<<"Word: "<<temp->word<<endl;
+		cout<<"Meaning: "<<temp->meaning<<endl;
 	}
-	else
+	else if(flag == 0)
 	{
-		cout<<"Word "<<w<<" not found"<<endl;
+		cout<<"Word Not Found!!"<<endl;
 	}
 }
-void Dictionary::delt()
+void SC::deleteword()
 {
-	cout<<"Enter word to delete: "<<endl;
-	cin>>w;
-	int flag=0;
-	int s = hash(w);
-	node *b,*curr;
-	b = dict[s];
-	curr = b;
-	while(b!=NULL && b->word!=w)
+	string s;
+	cout<<"Enter Word to Delete from Dictionary: "<<endl;
+	cin>>s;
+	int key;
+	key = hash(s[0]);
+	node* temp;
+	temp = list[key];
+	node* curr = temp;
+	if(temp->word==s)	//if node is first node in list
 	{
-		curr = b;
-		b = b->next;
-	}
-	if(b==NULL)
-	{
-		cout<<"Word not present!!!!"<<endl;
+		node* start = temp;
+		start = start->next;
+		list[key] = start;
+		temp->next=NULL;
+		cout<<"Deleting word - "<<temp->word<<endl;
+		delete temp;
 		return;
 	}
-	if(b->next==NULL)
+	while(temp!=NULL && temp->word!=s)
 	{
-		curr->next = NULL;
-		cout<<"Deleting Word "<< b->word<<endl;
-		delete b;
+		curr = temp;
+		temp = temp->next;
 	}
-	else
+	if(temp==NULL)
 	{
-		curr->next = b->next;
-		b->next = NULL;
-		cout<<"Deleting Word "<< b->word<<endl;
-		delete b;
+		cout<<"Word Not present!!"<<endl;
+		return;
+	}
+	else if(temp->next==NULL)//node is last node
+	{
+		curr->next=NULL;
+		cout<<"Deleting word - "<<temp->word<<endl;
+		delete temp;
+		return;
+	}
+	else // node is in between
+	{
+		curr->next = temp->next;
+		temp->next = NULL;
+		cout<<"Deleting word - "<<temp->word<<endl;
+		delete temp;
+		return;
 	}
 }
 int main()
 {
-	Dictionary d;int a,ch;
+	SC s;
+	int ch;string s1;
 	while(true)
 	{
-		cout<<"DICTIONARY ADT"<<endl;
-		cout<<"1. Insert Words"<<endl;
-		cout<<"2. Search a Word"<<endl;
-		cout<<"3. Delete a Word"<<endl;
-		cout<<"4. Exit"<<endl;
-		cout<<"Enter Choice"<<endl;
+		cout<<"1. INSERT WORDS"<<endl;
+		cout<<"2. DISPLAY ALL WORDS"<<endl;
+		cout<<"3. SEARCH WORDS"<<endl;
+		cout<<"4. DELETE WORDS"<<endl;
+		cout<<"5. EXIT"<<endl;
+		cout<<"ENTER CHOICE: "<<endl;
 		cin>>ch;
 		switch(ch)
 		{
 		case 1:
-			cout<<"Enter Words to be inserted: "<<endl;
-			cin>>a;
-			for(int i=0;i<a;i++)
-			{
-				d.insert();
-			}
+			s.insert();
 			break;
 		case 2:
-			d.find();
+			s.display();
 			break;
 		case 3:
-			d.delt();
+
+			cout<<"Enter Word to search Meaning: "<<endl;
+			cin>>s1;
+			s.search(s1);
 			break;
 		case 4:
+			s.deleteword();
+			break;
+		case 5:
 			cout<<"Code Exited"<<endl;
 			exit('0');
 		default:
-			cout<<"Wrong choice!!"<<endl;
+			cout<<"Enter Correct Choice!!"<<endl;
 			break;
 		}
 	}
 	return 0;
 }
-
