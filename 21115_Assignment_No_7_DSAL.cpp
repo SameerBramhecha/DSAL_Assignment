@@ -30,6 +30,7 @@ public:
 	void add_edge(int, int, int);
 	void prims(int);
 	void display(int);
+	void kruskals(int);
 };
 void PrimsMST::read(int ver, int e)
 {
@@ -130,7 +131,63 @@ void PrimsMST::prims(int ver)
 		}
 		cout << endl;
 	}
-	cout << "Minimum cost: " << cost << endl;
+	cout << "Minimum cost by Prims Algorithm: " << cost << endl;
+}
+void PrimsMST::kruskals(int ver)
+{
+	int count = 0,  father[20];
+	long int min = 99999;
+	for (int i = 0; i < ver; i++)
+	{
+		father[i] = -1;
+	}
+	int wt = 0;
+	int t1, t2, root_temp1, root_temp2,temp1,temp2;
+	int res[20][20];
+	for (int i = 0; i < 20; i++)
+	{
+		for (int j = 0; i < 20; i++)
+		{
+			res[i][j] = 0;
+		}
+	}
+	while (count < ver - 1)
+	{
+		min = 9999;
+		for (int v1 = 0; v1 < ver; v1++)
+		{
+			for (int v2 = 0; v2 < ver; v2++)
+			{
+				if (a[v1][v2] != 0 && a[v1][v2] < min)
+				{
+					min = a[v1][v2];
+					t1 = v1;
+					t2 = v2;
+				}
+			}
+		}
+		temp1 = t1;
+		temp2 = t2;
+		a[t1][t2] = a[t2][t1] = 0;
+		while (t1 >= 0)
+		{
+			root_temp1 = t1;
+			t1 = father[t1];
+		}
+		while (t2 >= 0)
+		{
+			root_temp2 = t2;
+			t2 = father[t2];
+		}
+		if (root_temp1 != root_temp2)
+		{
+			res[temp1][temp2] = res[temp2][temp1] = min;
+			wt = wt + res[temp1][temp2];
+			father[root_temp2] = root_temp1;
+			count++;
+		}
+	}
+	cout << "Minimum cost by Kruskals Algorithm: " << wt << endl;
 }
 int main()
 {
@@ -140,9 +197,39 @@ int main()
 	cin >> ver;
 	cout << "Enter no. of edges: " << endl;
 	cin >> e;
-	p.read(ver, e);
-	p.display(ver);
-	p.prims(ver);
+	int ch;
+	while (true)
+	{
+		cout << "\n----------Menu----------" << endl;
+		cout << "1.Read the Graph" << endl;
+		cout << "2.Display the graph" << endl;
+		cout << "3.Minimum Cost using Prims Algorithm" << endl;
+		cout << "4.Minimum Cost using Kruskals Algorithm" << endl;
+		cout << "5.Exit " << endl;
+		cout << "Enter your choice: ";
+		cin >> ch;
+		switch (ch)
+		{
+		case 1:
+			p.read(ver,e);
+			break;
+		case 2:
+			p.display(ver);
+			break;
+		case 3:
+			p.prims(ver);
+			break;
+		case 4:
+			p.kruskals(ver);
+			break;
+		case 5:
+			cout << "Code Exited" << endl;
+			exit('0');
+		default:
+			cout << "\nEnter correct choice!!" << endl;
+			break;
+		}
+	}
 	return 0;
 }
 
